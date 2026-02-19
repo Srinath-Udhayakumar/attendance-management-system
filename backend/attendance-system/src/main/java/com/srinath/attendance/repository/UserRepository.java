@@ -10,3 +10,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
 }
+//@Query("""
+//    SELECT u FROM User u
+//    LEFT JOIN FETCH u.role
+//    LEFT JOIN FETCH u.department
+//    WHERE LOWER(u.email) = LOWER(:email)
+//""")
+//Optional<User> findByEmail(@Param("email") String email);

@@ -14,5 +14,11 @@ public interface AttendanceRepository extends JpaRepository<Attendance, UUID> {
     Optional<Attendance> findByUserIdAndDate(UUID userId, LocalDate date);
     List<Attendance> findByUserId(UUID userId);
     Page<Attendance> findByDate(LocalDate date, Pageable pageable);
-    Page<Attendance> findByUserIdAndDateBetween(UUID userId, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<Attendance> findByUserIdAndDateBetween(
+            UUID userId,
+            LocalDate startDate,
+            LocalDate endDate,
+            Pageable pageable
+    );
+    boolean existsByUserIdAndDate(UUID userId, LocalDate date);
 }

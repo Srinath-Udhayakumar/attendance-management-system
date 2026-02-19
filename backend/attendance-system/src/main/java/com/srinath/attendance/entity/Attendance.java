@@ -5,11 +5,15 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.UUID;
-
 @Entity
-@Table(name = "attendances",uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","date"}))
+@Table(
+        name = "attendances",
+        uniqueConstraints = @UniqueConstraint(name = "uk_user_date", columnNames = {"user_id","date"}),
+        indexes = {
+                @Index(name = "idx_user_date", columnList = "user_id,date"),
+                @Index(name = "idx_date", columnList = "date")
+        })
 @Getter
 @Setter
 @Builder
@@ -27,13 +31,13 @@ public class Attendance extends BaseEntity{
     private LocalDateTime checkInTime;
     private LocalDateTime checkOutTime;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AttendanceStatus status;
+    @Column(nullable = false)
     private double totalHours;
     private boolean lateApproved;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "approved_by")
+    @JoinColumn(name = "approved_by",nullable = true)
     private User approvedBy;
     private LocalDateTime approvedAt;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

@@ -1,5 +1,6 @@
 package com.srinath.attendance.dto.response;
 
+import com.srinath.attendance.entity.AttendanceStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,7 +16,7 @@ public class AttendanceResponse {
     private LocalDate date;
     private LocalDateTime checkInTime;
     private LocalDateTime checkOutTime;
-    private String status;
+    private AttendanceStatus status;
     private double totalHours;
     private boolean lateApproved;
 }

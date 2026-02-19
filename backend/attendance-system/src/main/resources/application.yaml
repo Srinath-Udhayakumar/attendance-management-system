@@ -8,9 +8,14 @@ spring:
     username: postgres
     password: 231429
 
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 
 server:
    port: 8081
@@ -18,3 +23,7 @@ server:
 jwt:
    secret: 12345678901234567890123456789012
    expiration: 86400000
+
+logging:
+  level:
+    org.hibernate.SQL: debug
