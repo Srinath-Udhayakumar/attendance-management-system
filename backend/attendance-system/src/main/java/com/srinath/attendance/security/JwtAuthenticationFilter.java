@@ -47,12 +47,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var userDetails =
                     customUserDetailsService.loadUserByUsername(email);
 
-            // 🔥 IMPORTANT FIX — pass UserDetails (NOT username string)
+            // 🔥 IMPORTANT FIX — pass CustomUserDetails as principal
             if (jwtService.isTokenValid(token, userDetails.getUsername())) {
 
                 var authToken =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails,
+                                userDetails, // Use CustomUserDetails directly
                                 null,
                                 userDetails.getAuthorities()
                         );

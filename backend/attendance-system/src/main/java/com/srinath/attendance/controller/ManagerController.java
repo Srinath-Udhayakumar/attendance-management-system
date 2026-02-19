@@ -4,6 +4,7 @@ import com.srinath.attendance.dto.response.AttendanceResponse;
 import com.srinath.attendance.dto.response.ManagerDashboardResponse;
 import com.srinath.attendance.entity.Attendance;
 import com.srinath.attendance.entity.AttendanceStatus;
+import com.srinath.attendance.entity.User;
 import com.srinath.attendance.security.CustomUserDetails;
 import com.srinath.attendance.service.AttendanceService;
 import com.srinath.attendance.service.DashboardService;
@@ -124,24 +125,26 @@ public class ManagerController {
 
     // 🔹 CSV export with streaming
     @GetMapping("/export/csv")
-    public ResponseEntity<String> exportAttendanceCSV(
+    public ResponseEntity<byte[]> exportAttendanceCSV(
             @RequestParam(required = false) LocalDate from,
             @RequestParam(required = false) LocalDate to
-    ) throws IOException {
+    ) {
         log.info("Exporting attendance CSV from {} to {}", from, to);
 
         LocalDate startDate = from != null ? from : LocalDate.now().withDayOfMonth(1);
         LocalDate endDate = to != null ? to : LocalDate.now();
 
         String csvContent = generateCSVContent(startDate, endDate);
+        byte[] csvBytes = csvContent.getBytes(java.nio.charset.StandardCharsets.UTF_8);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_PLAIN);
-        headers.setContentDispositionFormData("attachment", "attendance_" + LocalDate.now() + ".csv");
+        headers.setContentType(MediaType.parseMediaType("text/csv"));
+        headers.setContentDispositionFormData("attachment", "attendance_" + startDate + "_to_" + endDate + ".csv");
+        headers.setContentLength(csvBytes.length);
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .body(csvContent);
+                .body(csvBytes);
     }
 
     // Helper method to generate CSV content
@@ -156,7 +159,22 @@ public class ManagerController {
                 org.springframework.data.domain.Pageable.unpaged()
         );
 
-        // TODO: Complete CSV generation with proper formatting
+        for (Attendance attendance : attendances.getContent()) {
+            User user = attendance.getUser();
+            String employeeId = user.getEmployeeId() != null ? user.getEmployeeId() : "";
+            String employeeName = user.getName() != null ? user.getName() : "";
+            String department = user.getDepartment() != null ? user.getDepartment().getName() : "";
+            String date = attendance.getDate() != null ? attendance.getDate().toString() : "";
+            String status = attendance.getStatus() != null ? attendance.getStatus().toString() : "";
+            String checkIn = attendance.getCheckInTime() != null ? attendance.getCheckInTime().toString() : "";
+            String checkOut = attendance.getCheckOutTime() != null ? attendance.getCheckOutTime().toString() : "";
+            String totalHours = attendance.getTotalHours() != null ? attendance.getTotalHours().toString() : "0.0";
+            String lateApproved = attendance.isLateApproved() ? "Yes" : "No";
+
+            csv.append(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                    employeeId, employeeName, department, date, status, checkIn, checkOut, totalHours, lateApproved));
+        }
+
         return csv.toString();
     }
 }

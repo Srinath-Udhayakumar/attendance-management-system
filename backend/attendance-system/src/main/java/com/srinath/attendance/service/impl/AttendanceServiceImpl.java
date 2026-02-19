@@ -206,5 +206,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         double hoursWorked = (minutesWorked - BREAK_DURATION_MINUTES) / 60.0;
         return Math.max(hoursWorked, 0.0); // Ensure non-negative
     }
+
+    @Override
+    public Optional<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }
 

@@ -36,7 +36,7 @@ public class User extends BaseEntity {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(name = "employee_id", nullable = false, unique = true, length = 20)
     private String employeeId;
 
     @ManyToOne(fetch = FetchType.LAZY)

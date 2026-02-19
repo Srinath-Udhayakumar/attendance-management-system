@@ -2,6 +2,7 @@ package com.srinath.attendance.service;
 
 import com.srinath.attendance.entity.Attendance;
 import com.srinath.attendance.entity.AttendanceStatus;
+import com.srinath.attendance.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -29,4 +30,6 @@ public interface AttendanceService {
     Attendance approveLate(UUID attendanceId, UUID approvedBy);
 
     List<Attendance> getAttendanceByStatus(AttendanceStatus status, LocalDate date);
+
+    Optional<User> findUserByEmail(String email);
 }
