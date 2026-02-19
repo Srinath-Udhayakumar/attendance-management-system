@@ -1,14 +1,7 @@
 package com.srinath.attendance.security;
 
-
-//Security configuration (which endpoints are Public/Authentication),(which role can access what)
-//We will configure:
-// -Stateless session
-// -Disable CSRF
-// -Permit /api/auth/**
-// -Protect everything else
-
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,9 +13,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -35,19 +34,18 @@ public class SecurityConfig {
         return provider;
     }
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())  //Cross Site Request Forgery
-                .cors(cors->cors.disable())
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authenticationProvider(authenticationProvider())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register","/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/manager/**").hasRole("MANAGER")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
@@ -59,13 +57,27 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 🔐 Password Encoder
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:4200"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        log.info("CORS configuration enabled for origins: http://localhost:3000, http://localhost:4200");
+        return source;
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 🔐 Authentication Manager
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config

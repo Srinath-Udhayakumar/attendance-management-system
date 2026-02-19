@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,5 +23,10 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Optional<Department> findByName(String name) {
         return departmentRepository.findByName(name);
+    }
+
+    @Override
+    public Optional<Department> findDepartmentById(UUID id) {
+        return departmentRepository.findById(id);
     }
 }

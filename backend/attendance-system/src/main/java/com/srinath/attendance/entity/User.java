@@ -25,7 +25,7 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false, length = 150,unique = true)
     private String email;
 
     // Store BCrypt hash only
@@ -35,6 +35,9 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String employeeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = false)

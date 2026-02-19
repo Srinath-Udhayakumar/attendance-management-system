@@ -34,7 +34,7 @@ public class Attendance extends BaseEntity{
     @Column(nullable = false)
     private AttendanceStatus status;
     @Column(nullable = false)
-    private double totalHours;
+    private Double totalHours;
     private boolean lateApproved;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "approved_by",nullable = true)
