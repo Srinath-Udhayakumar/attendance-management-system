@@ -31,3 +31,73 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment Variables ###
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+### Logs ###
+*.log
+logs/
+log/
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Runtime ###
+*.pid
+*.seed
+*.pid.lock
+
+### Database ###
+*.db
+*.sqlite
+*.sqlite3
+
+### Security ###
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+keystore/
+truststore/
+
+### Docker ###
+.dockerignore
+docker-compose*.yml
+Dockerfile*
+
+### Coverage ###
+coverage/
+*.lcov
+
+### Monitoring ###
+*.prof
+*.hprof
+heapdump*
+
+### Cache ###
+.cache/
+cache/
+
+### Backup ###
+*.bak
+*.backup
+
+### Temporary ###
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+### Application specific ###
+application-local.properties
+application-dev.properties
+application-test.properties
+local-config/
