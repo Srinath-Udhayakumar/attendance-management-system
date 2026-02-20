@@ -2,10 +2,10 @@ package com.srinath.attendance.service.impl;
 
 import com.srinath.attendance.dto.request.LoginRequest;
 import com.srinath.attendance.dto.request.RegisterRequest;
+import com.srinath.attendance.dto.response.AuthMeResponse;
 import com.srinath.attendance.dto.response.AuthResponse;
 import com.srinath.attendance.entity.Department;
 import com.srinath.attendance.entity.Role;
-import com.srinath.attendance.entity.RoleType;
 import com.srinath.attendance.entity.User;
 import com.srinath.attendance.exception.DepartmentNotFoundException;
 import com.srinath.attendance.exception.ResourceAlreadyExistsException;
@@ -13,6 +13,7 @@ import com.srinath.attendance.exception.RoleNotFoundException;
 import com.srinath.attendance.security.JwtService;
 import com.srinath.attendance.service.AuthService;
 import com.srinath.attendance.service.DepartmentService;
+import com.srinath.attendance.repository.UserRepository;
 import com.srinath.attendance.service.RoleService;
 import com.srinath.attendance.service.UserService;
 import jakarta.transaction.Transactional;
@@ -33,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final RoleService roleService;
     private final DepartmentService departmentService;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -49,10 +51,10 @@ public class AuthServiceImpl implements AuthService {
             throw new ResourceAlreadyExistsException("Email already registered");
         }
 
-        Role role = roleService.findByName(RoleType.EMPLOYEE)
+        Role role = roleService.findByName(request.getRole())
                 .orElseThrow(() -> {
-                    log.error("EMPLOYEE role not found during registration");
-                    return new RoleNotFoundException("EMPLOYEE role not found");
+                    log.error("Role not found during registration: {}",request.getRole());
+                    return new RoleNotFoundException("Role not found");
                 });
 
         Department department = departmentService.findDepartmentById(request.getDepartmentId())
@@ -80,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtService.generateToken(user.getEmail(), user.getRole().getName().name());
 
         return AuthResponse.builder()
-                .token(token)
+                .token(token).tokenType("Bearer")
                 .build();
     }
 
@@ -112,7 +114,22 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtService.generateToken(user.getEmail(), user.getRole().getName().name());
 
         return AuthResponse.builder()
-                .token(token)
+                .token(token).tokenType("Bearer")
+                .build();
+    }
+
+    @Override
+    public AuthMeResponse getCurrentUserDetails(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return AuthMeResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .role(user.getRole().getName().name())
+                .employeeId(user.getEmployeeId())
+                .department(user.getDepartment() != null ? user.getDepartment().getName() : "")
                 .build();
     }
 }

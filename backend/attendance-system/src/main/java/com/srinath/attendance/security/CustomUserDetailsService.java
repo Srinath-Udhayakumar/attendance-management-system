@@ -29,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName()));
+                List.of(new SimpleGrantedAuthority(user.getRole().getName().name()));
 
         return new CustomUserDetails(user);
     }

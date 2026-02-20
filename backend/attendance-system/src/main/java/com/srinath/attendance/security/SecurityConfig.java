@@ -45,9 +45,11 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/debug/**", "/api/employee/**").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/debug/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/manager/**").hasAuthority("ROLE_MANAGER")
+                        .requestMatchers("/api/employee/**").hasAuthority("EMPLOYEE")
+                        .requestMatchers("/api/manager/**").hasAuthority("MANAGER")
+                        .requestMatchers("/api/attendance/summary", "/api/attendance/today-status").hasAuthority("MANAGER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter,

@@ -1,5 +1,7 @@
 package com.srinath.attendance.service;
 
+import com.srinath.attendance.dto.response.TeamSummaryResponse;
+import com.srinath.attendance.dto.response.TodayStatusResponse;
 import com.srinath.attendance.entity.Attendance;
 import com.srinath.attendance.entity.AttendanceStatus;
 import com.srinath.attendance.entity.User;
@@ -32,4 +34,9 @@ public interface AttendanceService {
     List<Attendance> getAttendanceByStatus(AttendanceStatus status, LocalDate date);
 
     Optional<User> findUserByEmail(String email);
+
+    // New methods for manager endpoints
+    TeamSummaryResponse getTeamSummary(LocalDate date);
+
+    TodayStatusResponse getTodayStatus();
 }

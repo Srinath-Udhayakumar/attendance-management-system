@@ -1,0 +1,238 @@
+### =====================================================
+### 🌐 BASE
+### =====================================================
+
+@baseUrl = http://localhost:8081
+
+### =====================================================
+### 🔐 AUTH — EMPLOYEE
+### =====================================================
+
+### Login Employee
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Password@123"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+###
+
+### ❌ Login wrong password
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "WrongPassword"
+}
+
+###
+
+### Get current user details
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{auth_token}}
+
+###
+
+### =====================================================
+### 👤 EMPLOYEE CORE
+### =====================================================
+
+### Check-in
+POST {{baseUrl}}/api/employee/check-in
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Double check-in (should fail)
+POST {{baseUrl}}/api/employee/check-in
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Check-out
+POST {{baseUrl}}/api/employee/check-out
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Today's Attendance
+GET {{baseUrl}}/api/employee/attendance/today
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Attendance History
+GET {{baseUrl}}/api/employee/attendance/history
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Monthly Attendance
+GET {{baseUrl}}/api/employee/attendance/monthly/2/2026
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Employee Dashboard
+GET {{baseUrl}}/api/employee/dashboard
+Authorization: Bearer {{auth_token}}
+
+###
+
+### =====================================================
+### 🔧 LEGACY / EXTRA EMPLOYEE (from screenshot)
+### =====================================================
+
+### Legacy mark attendance
+POST {{baseUrl}}/api/attendance/mark
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Legacy get my attendance
+GET {{baseUrl}}/api/attendance/my
+Authorization: Bearer {{auth_token}}
+
+###
+
+### =====================================================
+### 🔐 AUTH — MANAGER
+### =====================================================
+
+### Login Manager
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager02@test.com",
+  "password": "Password@123"
+}
+
+> {% client.global.set("manager_token", response.body.token); %}
+
+###
+
+### Get current manager details
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{manager_token}}
+
+###
+
+### =====================================================
+### 👨‍💼 MANAGER CORE
+### =====================================================
+
+### Manager Dashboard
+GET {{baseUrl}}/api/manager/dashboard
+Authorization: Bearer {{manager_token}}
+
+###
+
+### Manager Attendance (all)
+GET {{baseUrl}}/api/manager/attendance
+Authorization: Bearer {{manager_token}}
+
+###
+
+### Manager Attendance by User (PUT REAL USER UUID)
+@employeeId = 100be0e4-7f35-4446-b66d-016ca65e865e
+
+GET {{baseUrl}}/api/manager/attendance/{{employeeId}}
+Authorization: Bearer {{manager_token}}
+
+###
+
+### Approve Late (PUT REAL ATTENDANCE UUID)
+@attendanceId = b3d64324-38b3-4570-a086-23955617eef2
+
+POST {{baseUrl}}/api/manager/attendance/{{attendanceId}}/approve-late
+Authorization: Bearer {{manager_token}}
+
+###
+
+### Export CSV
+GET {{baseUrl}}/api/manager/export/csv
+Authorization: Bearer {{manager_token}}
+
+###
+
+### Team Summary
+GET {{baseUrl}}/api/attendance/summary
+Authorization: Bearer {{manager_token}}
+
+###
+
+### Today Status
+GET {{baseUrl}}/api/attendance/today-status
+Authorization: Bearer {{manager_token}}
+
+###
+
+### =====================================================
+### 🧪 DEBUG ENDPOINTS
+### =====================================================
+
+### Debug — Departments
+GET {{baseUrl}}/api/debug/departments
+
+###
+
+### Debug — Auth Info
+GET {{baseUrl}}/api/debug/auth-info
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Debug — Test Employee
+GET {{baseUrl}}/api/debug/test-employee
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Debug — User Details
+GET {{baseUrl}}/api/debug/user-details
+Authorization: Bearer {{auth_token}}
+
+###
+
+### =====================================================
+### 🔒 SECURITY NEGATIVE TESTS
+### =====================================================
+
+### ❌ Employee hitting manager API
+GET {{baseUrl}}/api/manager/dashboard
+Authorization: Bearer {{auth_token}}
+
+###
+
+### ❌ Employee hitting team summary API
+GET {{baseUrl}}/api/attendance/summary
+Authorization: Bearer {{auth_token}}
+
+###
+
+### ❌ Employee hitting today status API
+GET {{baseUrl}}/api/attendance/today-status
+Authorization: Bearer {{auth_token}}
+
+###
+
+### ❌ Employee endpoint without token
+GET {{baseUrl}}/api/employee/dashboard
+
+###
+
+### ❌ Manager endpoint without token
+GET {{baseUrl}}/api/manager/dashboard
+
+###
+
+### ❌ Auth endpoint without token
+GET {{baseUrl}}/api/auth/me
+
+###

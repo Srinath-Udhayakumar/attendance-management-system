@@ -1,5 +1,7 @@
 package com.srinath.attendance.service.impl;
 
+import com.srinath.attendance.dto.response.TeamSummaryResponse;
+import com.srinath.attendance.dto.response.TodayStatusResponse;
 import com.srinath.attendance.entity.Attendance;
 import com.srinath.attendance.entity.AttendanceStatus;
 import com.srinath.attendance.entity.User;
@@ -210,6 +212,67 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public Optional<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public TeamSummaryResponse getTeamSummary(LocalDate date) {
+        long totalEmployees = userRepository.count();
+        long presentToday = attendanceRepository.countByStatusAndDate(AttendanceStatus.PRESENT, date);
+        long absentToday = attendanceRepository.countByStatusAndDate(AttendanceStatus.ABSENT, date);
+        long lateToday = attendanceRepository.countByStatusAndDate(AttendanceStatus.LATE, date);
+        long halfDayToday = attendanceRepository.countByStatusAndDate(AttendanceStatus.HALF_DAY, date);
+
+        return TeamSummaryResponse.builder()
+                .totalEmployees(totalEmployees)
+                .presentToday(presentToday)
+                .absentToday(absentToday)
+                .lateToday(lateToday)
+                .halfDayToday(halfDayToday)
+                .build();
+    }
+
+    @Override
+    public TodayStatusResponse getTodayStatus() {
+        LocalDate today = LocalDate.now();
+        List<Attendance> presentAttendances = attendanceRepository.findByStatusAndDate(AttendanceStatus.PRESENT, today);
+        List<Attendance> absentAttendances = attendanceRepository.findByStatusAndDate(AttendanceStatus.ABSENT, today);
+        List<Attendance> lateAttendances = attendanceRepository.findByStatusAndDate(AttendanceStatus.LATE, today);
+
+        List<TodayStatusResponse.EmployeeInfo> presentEmployees = presentAttendances.stream()
+                .map(att -> TodayStatusResponse.EmployeeInfo.builder()
+                        .id(att.getUser().getId())
+                        .name(att.getUser().getName())
+                        .employeeId(att.getUser().getEmployeeId())
+                        .department(att.getUser().getDepartment() != null ? att.getUser().getDepartment().getName() : "")
+                        .checkInTime(att.getCheckInTime() != null ? att.getCheckInTime().toString() : "")
+                        .build())
+                .toList();
+
+        List<TodayStatusResponse.EmployeeInfo> absentEmployees = absentAttendances.stream()
+                .map(att -> TodayStatusResponse.EmployeeInfo.builder()
+                        .id(att.getUser().getId())
+                        .name(att.getUser().getName())
+                        .employeeId(att.getUser().getEmployeeId())
+                        .department(att.getUser().getDepartment() != null ? att.getUser().getDepartment().getName() : "")
+                        .checkInTime("")
+                        .build())
+                .toList();
+
+        List<TodayStatusResponse.EmployeeInfo> lateEmployees = lateAttendances.stream()
+                .map(att -> TodayStatusResponse.EmployeeInfo.builder()
+                        .id(att.getUser().getId())
+                        .name(att.getUser().getName())
+                        .employeeId(att.getUser().getEmployeeId())
+                        .department(att.getUser().getDepartment() != null ? att.getUser().getDepartment().getName() : "")
+                        .checkInTime(att.getCheckInTime() != null ? att.getCheckInTime().toString() : "")
+                        .build())
+                .toList();
+
+        return TodayStatusResponse.builder()
+                .presentEmployees(presentEmployees)
+                .absentEmployees(absentEmployees)
+                .lateEmployees(lateEmployees)
+                .build();
     }
 }
 

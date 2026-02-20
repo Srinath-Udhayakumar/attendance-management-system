@@ -59,4 +59,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, UUID> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    // Count methods for summary statistics
+    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.status = :status AND a.date = :date")
+    long countByStatusAndDate(@Param("status") AttendanceStatus status, @Param("date") LocalDate date);
 }

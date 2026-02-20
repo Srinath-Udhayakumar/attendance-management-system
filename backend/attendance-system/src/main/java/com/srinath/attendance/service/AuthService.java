@@ -2,11 +2,16 @@ package com.srinath.attendance.service;
 
 import com.srinath.attendance.dto.request.LoginRequest;
 import com.srinath.attendance.dto.request.RegisterRequest;
+import com.srinath.attendance.dto.response.AuthMeResponse;
 import com.srinath.attendance.dto.response.AuthResponse;
+
+import java.util.UUID;
 
 public interface AuthService {
 
     AuthResponse register(RegisterRequest request);
 
     AuthResponse login(LoginRequest request);
+
+    AuthMeResponse getCurrentUserDetails(UUID userId);
 }
