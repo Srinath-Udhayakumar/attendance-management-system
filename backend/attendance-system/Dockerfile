@@ -12,7 +12,7 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 WORKDIR /app
 
 # ✅ Copy prebuilt jar from CI
-COPY target/*.jar app.jar
+COPY backend/attendance-system/target/*.jar app.jar
 
 # Permissions
 RUN chown -R appuser:appuser /app
