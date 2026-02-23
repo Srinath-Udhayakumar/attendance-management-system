@@ -1,0 +1,22 @@
+# Maven build output
+target/*
+!target/*.jar
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Git
+.git
+.gitignore

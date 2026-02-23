@@ -68,9 +68,8 @@ keystore/
 truststore/
 
 ### Docker ###
-.dockerignore
 docker-compose*.yml
-Dockerfile*
+
 
 ### Coverage ###
 coverage/
