@@ -53,7 +53,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: application-jar
-        path: target/*.jar
+        path: backend/attendance-system/target/*.jar
         retention-days: 7
 
   # Docker Build and Push Job
