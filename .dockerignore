@@ -16,8 +16,7 @@ logs
 # ignore env
 .env*
 
-# ignore ALL targets everywhere
-**/target/*
-
 # ignore build cache BUT keep jar
+target/*
+!target/*.jar
 !backend/attendance-system/target/*.jar
