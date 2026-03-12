@@ -35,28 +35,3 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
 }
-
-//@Service
-//@RequiredArgsConstructor
-//public class CustomUserDetailsService implements UserDetailsService {
-//
-//    private final UserRepository userRepository;
-//
-//    @Override
-//    @Transactional(readOnly = true)
-//    public UserDetails loadUserByUsername(String email) {
-//
-//        User user = userRepository.findByEmail(email)
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//
-//        var authorities = List.of(
-//                new SimpleGrantedAuthority("ROLE_" + user.getRole().getName())
-//        );
-//
-//        return new org.springframework.security.core.userdetails.User(
-//                user.getEmail(),
-//                user.getPassword(),
-//                authorities
-//        );
-//    }
-//}
