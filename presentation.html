@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance Management System – Client Presentation</title>
+  <style>
+    /* ─── Reset & base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary:   #1e40af;   /* deep blue  */
+      --accent:    #3b82f6;   /* bright blue */
+      --light:     #eff6ff;
+      --dark:      #0f172a;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --success:   #16a34a;
+      --warning:   #d97706;
+      --danger:    #dc2626;
+      --radius:    12px;
+      --shadow:    0 4px 24px rgba(0,0,0,.12);
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f1f5f9;
+      color: var(--text);
+      scroll-behavior: smooth;
+    }
+
+    /* ─── Navigation ────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--primary);
+      color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .75rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    }
+    nav .logo { font-weight: 700; font-size: 1.1rem; letter-spacing: .5px; }
+    nav .slides-nav { display: flex; gap: .5rem; flex-wrap: wrap; }
+    nav .slides-nav a {
+      color: rgba(255,255,255,.8);
+      text-decoration: none;
+      font-size: .78rem;
+      padding: .25rem .6rem;
+      border-radius: 6px;
+      transition: background .2s;
+    }
+    nav .slides-nav a:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ─── Slides wrapper ─────────────────────────────────────────────── */
+    .presentation { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+
+    /* ─── Slide card ─────────────────────────────────────────────────── */
+    .slide {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 3rem;
+      overflow: hidden;
+      scroll-margin-top: 70px;
+    }
+    .slide-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: #fff;
+      padding: 1.25rem 2rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .slide-header .num {
+      background: rgba(255,255,255,.25);
+      border-radius: 50%;
+      width: 2.2rem; height: 2.2rem;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .9rem; flex-shrink: 0;
+    }
+    .slide-header h2 { font-size: 1.35rem; font-weight: 700; }
+    .slide-body { padding: 2rem; }
+
+    /* ─── Hero / Title slide ────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 60%, var(--accent) 100%);
+      color: #fff;
+      text-align: center;
+      padding: 4rem 2rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 3rem;
+    }
+    .hero .tag {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 999px;
+      padding: .35rem 1.1rem;
+      font-size: .85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.15; margin-bottom: 1rem; }
+    .hero p  { font-size: 1.15rem; opacity: .85; max-width: 680px; margin: 0 auto 2rem; }
+    .hero .team-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; }
+    .hero .chip {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      padding: .45rem 1.1rem;
+      font-size: .9rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .hero .chip .role-badge {
+      background: var(--accent);
+      border-radius: 999px;
+      font-size: .7rem;
+      padding: .1rem .5rem;
+      font-weight: 600;
+    }
+    .hero .chip .role-badge.fe { background: #7c3aed; }
+    .hero .chip .role-badge.jwt { background: var(--success); }
+
+    /* ─── Two-column grid ────────────────────────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+    @media (max-width: 700px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Card variants ─────────────────────────────────────────────── */
+    .card {
+      background: var(--light);
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      padding: 1.3rem;
+    }
+    .card h3 { color: var(--primary); font-size: 1rem; margin-bottom: .6rem; display: flex; align-items: center; gap: .5rem; }
+    .card ul  { list-style: none; }
+    .card ul li { padding: .25rem 0; font-size: .92rem; }
+    .card ul li::before { content: "✓ "; color: var(--success); font-weight: 700; }
+
+    /* ─── Tech stack table ───────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th { background: var(--primary); color: #fff; padding: .65rem 1rem; text-align: left; }
+    td { padding: .55rem 1rem; border-bottom: 1px solid #e2e8f0; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .badge {
+      display: inline-block; border-radius: 999px;
+      padding: .15rem .7rem; font-size: .75rem; font-weight: 600;
+    }
+    .badge-blue   { background: #dbeafe; color: var(--primary); }
+    .badge-green  { background: #dcfce7; color: var(--success); }
+    .badge-purple { background: #ede9fe; color: #6d28d9; }
+    .badge-orange { background: #ffedd5; color: var(--warning); }
+
+    /* ─── Architecture diagram ───────────────────────────────────────── */
+    .arch {
+      display: flex; align-items: stretch; gap: 1rem; flex-wrap: wrap;
+      justify-content: center;
+    }
+    .arch-box {
+      flex: 1 1 160px;
+      background: var(--light);
+      border: 2px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 1.2rem;
+      text-align: center;
+    }
+    .arch-box .icon { font-size: 2rem; margin-bottom: .5rem; }
+    .arch-box h4 { font-size: .95rem; color: var(--primary); font-weight: 700; margin-bottom: .4rem; }
+    .arch-box p  { font-size: .8rem; color: var(--muted); }
+    .arch-arrow  { align-self: center; font-size: 1.8rem; color: var(--accent); flex-shrink: 0; }
+
+    /* ─── Feature list ────────────────────────────────────────────────── */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .feature-item {
+      border-left: 4px solid var(--accent);
+      background: var(--light);
+      border-radius: 0 10px 10px 0;
+      padding: 1rem 1.2rem;
+    }
+    .feature-item h4 { color: var(--primary); font-size: .95rem; margin-bottom: .35rem; }
+    .feature-item p  { font-size: .85rem; color: var(--muted); }
+
+    /* ─── JWT flow ───────────────────────────────────────────────────── */
+    .flow { display: flex; flex-direction: column; gap: .75rem; }
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 1rem;
+      background: var(--light); border-radius: 10px; padding: 1rem 1.2rem;
+    }
+    .flow-step .step-num {
+      background: var(--primary); color: #fff;
+      border-radius: 50%; width: 2rem; height: 2rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .85rem;
+    }
+    .flow-step .step-content h4 { font-size: .95rem; color: var(--dark); margin-bottom: .2rem; }
+    .flow-step .step-content p  { font-size: .85rem; color: var(--muted); }
+    .code-block {
+      background: #0f172a; color: #e2e8f0;
+      border-radius: 8px; padding: 1.2rem 1.5rem;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: .82rem; line-height: 1.7;
+      overflow-x: auto; white-space: pre;
+      margin-top: .75rem;
+    }
+    .code-block .kw  { color: #93c5fd; }
+    .code-block .str { color: #86efac; }
+    .code-block .cmt { color: #64748b; }
+    .code-block .fn  { color: #fde68a; }
+
+    /* ─── Stat chips ────────────────────────────────────────────────── */
+    .stat-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+    .stat {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff; border-radius: 10px; padding: 1rem 1.5rem; text-align: center; flex: 1 1 120px;
+    }
+    .stat .number { font-size: 2rem; font-weight: 800; }
+    .stat .label  { font-size: .8rem; opacity: .85; }
+
+    /* ─── Timeline ───────────────────────────────────────────────────── */
+    .timeline { position: relative; padding-left: 2.5rem; }
+    .timeline::before {
+      content: ''; position: absolute; left: .8rem; top: 0; bottom: 0;
+      width: 2px; background: #bfdbfe;
+    }
+    .timeline-item { position: relative; margin-bottom: 1.4rem; }
+    .timeline-item::before {
+      content: ''; position: absolute; left: -1.9rem; top: .3rem;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent); border: 2px solid #fff;
+      box-shadow: 0 0 0 3px #bfdbfe;
+    }
+    .timeline-item h4 { font-size: .95rem; color: var(--primary); }
+    .timeline-item p  { font-size: .85rem; color: var(--muted); }
+
+    /* ─── Roles section ─────────────────────────────────────────────── */
+    .role-card {
+      border-radius: 10px; padding: 1.3rem;
+      border: 2px solid transparent;
+    }
+    .role-card.backend { background: #eff6ff; border-color: #bfdbfe; }
+    .role-card.frontend { background: #f5f3ff; border-color: #ddd6fe; }
+    .role-card h3 { font-size: 1rem; margin-bottom: .6rem; }
+    .role-card.backend h3 { color: var(--primary); }
+    .role-card.frontend h3 { color: #6d28d9; }
+    .role-card ul { list-style: none; }
+    .role-card ul li { padding: .25rem 0; font-size: .88rem; }
+    .role-card ul li::before { content: "▸ "; }
+
+    /* ─── Final slide ────────────────────────────────────────────────── */
+    .final-slide {
+      background: linear-gradient(135deg, var(--dark), var(--primary));
+      color: #fff; text-align: center;
+      padding: 4rem 2rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 3rem;
+    }
+    .final-slide h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
+    .final-slide p  { font-size: 1.1rem; opacity: .85; max-width: 600px; margin: 0 auto 2rem; }
+    .final-slide .contact-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+    .final-slide .contact-item {
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      border-radius: 10px; padding: 1rem 1.5rem; min-width: 180px;
+    }
+    .final-slide .contact-item .name { font-weight: 700; font-size: 1rem; }
+    .final-slide .contact-item .role { font-size: .8rem; opacity: .8; }
+  </style>
+</head>
+<body>
+
+<!-- ─── Sticky navigation ─────────────────────────────────────────────── -->
+<nav>
+  <div class="logo">📋 AMS Presentation</div>
+  <div class="slides-nav">
+    <a href="#slide-overview">Overview</a>
+    <a href="#slide-team">Team</a>
+    <a href="#slide-tech">Tech Stack</a>
+    <a href="#slide-arch">Architecture</a>
+    <a href="#slide-features">Features</a>
+    <a href="#slide-jwt">JWT Security</a>
+    <a href="#slide-db">Database</a>
+    <a href="#slide-api">API</a>
+    <a href="#slide-devops">DevOps</a>
+    <a href="#slide-demo">Demo</a>
+    <a href="#slide-qa">Q &amp; A</a>
+  </div>
+</nav>
+
+<div class="presentation">
+
+  <!-- ══ HERO / TITLE ══════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="tag">🎓 Client Presentation · 2026</div>
+    <h1>Attendance Management<br>System</h1>
+    <p>
+      A full-stack, enterprise-grade solution for real-time employee attendance
+      tracking, leave management, and workforce analytics — secured with JWT
+      and powered by Spring Boot + React.
+    </p>
+    <div class="team-chips">
+      <div class="chip">
+        👤 Srinath Udhayakumar
+        <span class="role-badge jwt">Backend · JWT</span>
+      </div>
+      <div class="chip">
+        👤 Backend Developer 2
+        <span class="role-badge">Backend</span>
+      </div>
+      <div class="chip">
+        👤 Frontend Developer 1
+        <span class="role-badge fe">Frontend</span>
+      </div>
+      <div class="chip">
+        👤 Frontend Developer 2
+        <span class="role-badge fe">Frontend</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 1 — PROJECT OVERVIEW ════════════════════════════════════ -->
+  <div class="slide" id="slide-overview">
+    <div class="slide-header">
+      <div class="num">1</div>
+      <h2>Project Overview</h2>
+    </div>
+    <div class="slide-body">
+      <p style="font-size:1.05rem; margin-bottom:1.5rem; color:var(--muted);">
+        The <strong>Attendance Management System (AMS)</strong> replaces error-prone
+        manual registers with an automated, role-based digital platform.  Employees
+        mark their own attendance; managers get real-time visibility and reporting.
+      </p>
+      <div class="grid-2">
+        <div class="card">
+          <h3>🎯 Problem Solved</h3>
+          <ul>
+            <li>Eliminates manual registers &amp; spreadsheets</li>
+            <li>Prevents buddy-punching &amp; time fraud</li>
+            <li>Provides instant attendance analytics</li>
+            <li>Automates late-arrival approval workflow</li>
+            <li>Enables data-driven HR decisions</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🚀 Key Highlights</h3>
+          <ul>
+            <li>Secure JWT-based stateless authentication</li>
+            <li>Role-based access (Employee / Manager)</li>
+            <li>Real-time dashboards for both roles</li>
+            <li>CSV export for payroll integration</li>
+            <li>Docker-ready &amp; CI/CD automated</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stat-row" style="margin-top:1.5rem;">
+        <div class="stat"><div class="number">2</div><div class="label">User Roles</div></div>
+        <div class="stat"><div class="number">20+</div><div class="label">REST Endpoints</div></div>
+        <div class="stat"><div class="number">4</div><div class="label">Core Entities</div></div>
+        <div class="stat"><div class="number">24 h</div><div class="label">JWT Token Life</div></div>
+        <div class="stat"><div class="number">100%</div><div class="label">TypeScript Frontend</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 2 — TEAM ════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-team">
+    <div class="slide-header">
+      <div class="num">2</div>
+      <h2>Meet the Team</h2>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2">
+        <div class="role-card backend">
+          <h3>⚙️ Backend Team</h3>
+          <ul>
+            <li><strong>Srinath Udhayakumar</strong> — Spring Boot core, <em>JWT security layer</em>, RBAC, authentication filters, token generation &amp; validation</li>
+            <li><strong>Backend Developer 2</strong> — REST API controllers, service layer, database design, Flyway migrations, Testcontainers-based integration tests</li>
+          </ul>
+        </div>
+        <div class="role-card frontend">
+          <h3>🖥️ Frontend Team</h3>
+          <ul>
+            <li><strong>Frontend Developer 1</strong> — React application architecture, routing, auth context, Axios interceptor, Employee dashboard &amp; attendance pages</li>
+            <li><strong>Frontend Developer 2</strong> — Manager dashboard, team overview pages, Tailwind UI components, unit tests with Vitest</li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem;" class="card">
+        <h3>🔗 How We Collaborated</h3>
+        <ul>
+          <li>GitHub for version control with feature branches and pull requests</li>
+          <li>GitHub Actions CI/CD pipeline — automated build &amp; test on every push</li>
+          <li>Shared API contract (endpoints &amp; DTOs) agreed before implementation</li>
+          <li>CORS configured on backend to allow frontend dev server connections</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 3 — TECH STACK ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-tech">
+    <div class="slide-header">
+      <div class="num">3</div>
+      <h2>Technology Stack</h2>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2">
+        <div>
+          <h3 style="color:var(--primary); margin-bottom:.8rem;">🔧 Backend</h3>
+          <table>
+            <thead>
+              <tr><th>Layer</th><th>Technology</th><th>Version</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Language</td><td>Java</td><td><span class="badge badge-orange">17 LTS</span></td></tr>
+              <tr><td>Framework</td><td>Spring Boot</td><td><span class="badge badge-blue">4.0.2</span></td></tr>
+              <tr><td>Security</td><td>Spring Security + JJWT</td><td><span class="badge badge-green">0.12.6</span></td></tr>
+              <tr><td>ORM</td><td>Spring Data JPA / Hibernate</td><td><span class="badge badge-blue">—</span></td></tr>
+              <tr><td>Database</td><td>PostgreSQL</td><td><span class="badge badge-orange">14+</span></td></tr>
+              <tr><td>Migrations</td><td>Flyway</td><td><span class="badge badge-blue">—</span></td></tr>
+              <tr><td>Conn. Pool</td><td>HikariCP</td><td><span class="badge badge-blue">—</span></td></tr>
+              <tr><td>Build</td><td>Maven</td><td><span class="badge badge-orange">3.8+</span></td></tr>
+              <tr><td>Testing</td><td>JUnit 5 + Testcontainers</td><td><span class="badge badge-green">—</span></td></tr>
+              <tr><td>Monitoring</td><td>Spring Actuator</td><td><span class="badge badge-blue">—</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 style="color:#6d28d9; margin-bottom:.8rem;">🖥️ Frontend</h3>
+          <table>
+            <thead>
+              <tr><th>Layer</th><th>Technology</th><th>Version</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Language</td><td>TypeScript</td><td><span class="badge badge-blue">5.9.3</span></td></tr>
+              <tr><td>UI Library</td><td>React</td><td><span class="badge badge-blue">19.2</span></td></tr>
+              <tr><td>Build Tool</td><td>Vite</td><td><span class="badge badge-orange">7.3.1</span></td></tr>
+              <tr><td>Routing</td><td>React Router DOM</td><td><span class="badge badge-blue">7.13</span></td></tr>
+              <tr><td>Data Fetch</td><td>TanStack React Query</td><td><span class="badge badge-green">5.90</span></td></tr>
+              <tr><td>HTTP</td><td>Axios</td><td><span class="badge badge-blue">1.13.6</span></td></tr>
+              <tr><td>Styling</td><td>Tailwind CSS</td><td><span class="badge badge-purple">4.2.1</span></td></tr>
+              <tr><td>Testing</td><td>Vitest + Testing Library</td><td><span class="badge badge-green">4.0.18</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card" style="margin-top:1rem;">
+            <h3>☁️ DevOps &amp; Infrastructure</h3>
+            <ul>
+              <li>Docker + Docker Compose</li>
+              <li>GitHub Actions CI/CD pipeline</li>
+              <li>Environment-based configuration</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 4 — ARCHITECTURE ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-arch">
+    <div class="slide-header">
+      <div class="num">4</div>
+      <h2>System Architecture</h2>
+    </div>
+    <div class="slide-body">
+      <div class="arch">
+        <div class="arch-box">
+          <div class="icon">🌐</div>
+          <h4>React Frontend</h4>
+          <p>TypeScript · Vite · Tailwind CSS · React Query · Axios</p>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box">
+          <div class="icon">🔐</div>
+          <h4>JWT Filter</h4>
+          <p>Bearer token validation · Spring Security filter chain</p>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box">
+          <div class="icon">⚙️</div>
+          <h4>Spring Boot API</h4>
+          <p>REST Controllers · Service Layer · DTOs · Exception Handling</p>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box">
+          <div class="icon">🗄️</div>
+          <h4>PostgreSQL DB</h4>
+          <p>HikariCP pool · JPA / Hibernate · Flyway migrations</p>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem;" class="grid-2">
+        <div class="card">
+          <h3>🔄 Request Lifecycle</h3>
+          <ul>
+            <li>Client sends HTTP request with <code>Authorization: Bearer &lt;token&gt;</code></li>
+            <li>JWT filter extracts &amp; validates the token</li>
+            <li>Spring Security enforces role-based endpoint access</li>
+            <li>Controller delegates to service layer</li>
+            <li>Service queries repository → JPA → PostgreSQL</li>
+            <li>JSON response returned to client</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🏗️ Backend Layers</h3>
+          <ul>
+            <li><strong>Controller</strong> — HTTP routing &amp; input validation</li>
+            <li><strong>Service</strong> — Business logic (interfaces + impls)</li>
+            <li><strong>Repository</strong> — Spring Data JPA data access</li>
+            <li><strong>Entity</strong> — JPA-mapped domain objects</li>
+            <li><strong>DTO</strong> — Request / Response data contracts</li>
+            <li><strong>Security</strong> — JWT filter, RBAC, BCrypt</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 5 — FEATURES ═════════════════════════════════════════════ -->
+  <div class="slide" id="slide-features">
+    <div class="slide-header">
+      <div class="num">5</div>
+      <h2>Key Features</h2>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div>
+          <h3 style="color:var(--primary); margin-bottom:1rem;">👷 Employee Features</h3>
+          <div class="feature-grid">
+            <div class="feature-item">
+              <h4>⏰ Check-in / Check-out</h4>
+              <p>One-click attendance marking with automatic timestamp capture.</p>
+            </div>
+            <div class="feature-item">
+              <h4>📊 Personal Dashboard</h4>
+              <p>Today's status, monthly summary, 7-day attendance trend.</p>
+            </div>
+            <div class="feature-item">
+              <h4>📅 Attendance History</h4>
+              <p>Paginated history with date-range filter. Shows PRESENT / ABSENT / LATE / HALF_DAY.</p>
+            </div>
+            <div class="feature-item">
+              <h4>📈 Monthly Summary</h4>
+              <p>Present days, absent days, late days, total hours worked, attendance %.</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 style="color:#6d28d9; margin-bottom:1rem;">👔 Manager Features</h3>
+          <div class="feature-grid">
+            <div class="feature-item" style="border-left-color:#7c3aed;">
+              <h4>🏢 Team Dashboard</h4>
+              <p>Real-time overview: total employees, present/absent/late counts today.</p>
+            </div>
+            <div class="feature-item" style="border-left-color:#7c3aed;">
+              <h4>✅ Late Approval</h4>
+              <p>Approve late arrivals with full audit trail (approved by, approved at).</p>
+            </div>
+            <div class="feature-item" style="border-left-color:#7c3aed;">
+              <h4>📋 Team Attendance View</h4>
+              <p>Filter by date and status; view individual employee histories.</p>
+            </div>
+            <div class="feature-item" style="border-left-color:#7c3aed;">
+              <h4>📥 CSV Export</h4>
+              <p>Export attendance data by date range for payroll &amp; HR processing.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🔐 Authentication &amp; Access Control</h3>
+        <ul>
+          <li>User registration with automatic employee ID generation (EMP-{UUID})</li>
+          <li>Secure login returns signed JWT token — no session stored on server</li>
+          <li>All protected routes require valid Bearer token in Authorization header</li>
+          <li>Employees cannot access manager endpoints and vice versa (RBAC enforced)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 6 — JWT SECURITY ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-jwt">
+    <div class="slide-header">
+      <div class="num">6</div>
+      <h2>JWT Security Implementation</h2>
+    </div>
+    <div class="slide-body">
+      <p style="color:var(--muted); margin-bottom:1.5rem;">
+        Designed and implemented by <strong>Srinath Udhayakumar</strong> — stateless,
+        scalable, token-based authentication using HMAC-SHA256 signing.
+      </p>
+
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div>
+          <h3 style="margin-bottom:1rem; color:var(--primary);">🔑 Token Structure</h3>
+          <div class="code-block"><span class="cmt">// JWT = Header.Payload.Signature</span>
+
+<span class="cmt">// Header</span>
+{ <span class="str">"alg"</span>: <span class="str">"HS256"</span>, <span class="str">"typ"</span>: <span class="str">"JWT"</span> }
+
+<span class="cmt">// Payload (claims)</span>
+{
+  <span class="str">"sub"</span>:  <span class="str">"user@example.com"</span>,   <span class="cmt">// email</span>
+  <span class="str">"role"</span>: <span class="str">"EMPLOYEE"</span>,          <span class="cmt">// RBAC role</span>
+  <span class="str">"iat"</span>:  1710000000,          <span class="cmt">// issued at</span>
+  <span class="str">"exp"</span>:  1710086400           <span class="cmt">// expires +24 h</span>
+}
+
+<span class="cmt">// Signature: HMAC-SHA256 of above</span></div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:1rem; color:var(--primary);">⚡ Token Generation</h3>
+          <div class="code-block"><span class="kw">public</span> String <span class="fn">generateToken</span>(
+    String email, String role) {
+  <span class="kw">return</span> Jwts.builder()
+    .<span class="fn">subject</span>(email)
+    .<span class="fn">claim</span>(<span class="str">"role"</span>, role)
+    .<span class="fn">issuedAt</span>(<span class="kw">new</span> Date())
+    .<span class="fn">expiration</span>(<span class="kw">new</span> Date(
+      System.currentTimeMillis()
+      + jwtExpiration))        <span class="cmt">// 24 h</span>
+    .<span class="fn">signWith</span>(<span class="fn">getSigningKey</span>()) <span class="cmt">// HS256</span>
+    .<span class="fn">compact</span>();
+}</div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:1rem; color:var(--primary);">🔄 Authentication Flow</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Login Request</h4>
+            <p>Client sends <code>POST /api/auth/login</code> with <code>{ email, password }</code>. Spring Security uses <code>DaoAuthenticationProvider</code> to validate credentials against the BCrypt hash stored in PostgreSQL.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Token Issued</h4>
+            <p><code>JwtService.generateToken()</code> creates a signed HS256 token containing the user's email and role. The token (valid 24 hours) is returned to the client in the response body.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Subsequent Requests</h4>
+            <p>Client stores the token in <code>localStorage</code> and the Axios interceptor automatically appends <code>Authorization: Bearer &lt;token&gt;</code> to every request.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>JWT Filter (<code>JwtAuthenticationFilter</code>)</h4>
+            <p>Runs <em>once per request</em> (extends <code>OncePerRequestFilter</code>). Extracts the Bearer token, validates signature &amp; expiry via <code>JwtService</code>, loads <code>CustomUserDetails</code>, and sets the <code>SecurityContextHolder</code>.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>Role-Based Access Control</h4>
+            <p>Spring Security's <code>SecurityConfig</code> restricts <code>/api/employee/**</code> to EMPLOYEE role and <code>/api/manager/**</code> to MANAGER role. Unauthorized access returns HTTP 403.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:1.5rem;">
+        <div class="card">
+          <h3>🛡️ Security Features</h3>
+          <ul>
+            <li>Stateless — no server-side session storage</li>
+            <li>BCrypt password hashing (adaptive, salted)</li>
+            <li>CSRF disabled (REST API — safe)</li>
+            <li>CORS configured for known origins only</li>
+            <li>Token expiry enforced on every request</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚙️ Security Configuration</h3>
+          <ul>
+            <li><code>/api/auth/**</code> → Public (no token required)</li>
+            <li><code>/api/employee/**</code> → EMPLOYEE role only</li>
+            <li><code>/api/manager/**</code> → MANAGER role only</li>
+            <li><code>/api/attendance/summary</code> → MANAGER only</li>
+            <li>All other endpoints → Authenticated</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 7 — DATABASE ═════════════════════════════════════════════ -->
+  <div class="slide" id="slide-db">
+    <div class="slide-header">
+      <div class="num">7</div>
+      <h2>Database Design</h2>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2">
+        <div>
+          <table>
+            <thead><tr><th colspan="3">👥 users</th></tr></thead>
+            <tbody>
+              <tr><td>id</td><td>UUID PK</td><td></td></tr>
+              <tr><td>name</td><td>VARCHAR(100)</td><td></td></tr>
+              <tr><td>email</td><td>VARCHAR(150)</td><td><span class="badge badge-green">UNIQUE</span></td></tr>
+              <tr><td>password</td><td>VARCHAR(255)</td><td>BCrypt hash</td></tr>
+              <tr><td>employee_id</td><td>VARCHAR(20)</td><td><span class="badge badge-green">UNIQUE</span></td></tr>
+              <tr><td>role_id</td><td>UUID FK</td><td>→ roles</td></tr>
+              <tr><td>department_id</td><td>UUID FK</td><td>→ departments</td></tr>
+              <tr><td>enabled</td><td>BOOLEAN</td><td>default true</td></tr>
+            </tbody>
+          </table>
+          <table style="margin-top:1rem;">
+            <thead><tr><th colspan="3">🏢 departments</th></tr></thead>
+            <tbody>
+              <tr><td>id</td><td>UUID PK</td><td></td></tr>
+              <tr><td>name</td><td>VARCHAR(100)</td><td><span class="badge badge-green">UNIQUE</span></td></tr>
+            </tbody>
+          </table>
+          <table style="margin-top:1rem;">
+            <thead><tr><th colspan="3">🎭 roles</th></tr></thead>
+            <tbody>
+              <tr><td>id</td><td>UUID PK</td><td></td></tr>
+              <tr><td>name</td><td>VARCHAR(50)</td><td>EMPLOYEE | MANAGER</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <table>
+            <thead><tr><th colspan="3">📋 attendances</th></tr></thead>
+            <tbody>
+              <tr><td>id</td><td>UUID PK</td><td></td></tr>
+              <tr><td>user_id</td><td>UUID FK</td><td>→ users</td></tr>
+              <tr><td>date</td><td>DATE</td><td></td></tr>
+              <tr><td>check_in_time</td><td>TIMESTAMP</td><td></td></tr>
+              <tr><td>check_out_time</td><td>TIMESTAMP</td><td></td></tr>
+              <tr><td>status</td><td>VARCHAR(20)</td><td>PRESENT / ABSENT / LATE / HALF_DAY</td></tr>
+              <tr><td>total_hours</td><td>DOUBLE</td><td>default 0.0</td></tr>
+              <tr><td>late_approved</td><td>BOOLEAN</td><td>default false</td></tr>
+              <tr><td>approved_by</td><td>UUID FK</td><td>→ users (manager)</td></tr>
+              <tr><td>approved_at</td><td>TIMESTAMP</td><td></td></tr>
+            </tbody>
+          </table>
+          <div class="card" style="margin-top:1rem;">
+            <h3>🔑 Key Constraints &amp; Indexes</h3>
+            <ul>
+              <li>UNIQUE(user_id, date) — one record per employee per day</li>
+              <li>Indexes on: email, employee_id, date, status, (user_id, date)</li>
+              <li>Flyway manages all schema version migrations</li>
+              <li>HikariCP: max 10 connections, min-idle 5</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 8 — API ENDPOINTS ════════════════════════════════════════ -->
+  <div class="slide" id="slide-api">
+    <div class="slide-header">
+      <div class="num">8</div>
+      <h2>REST API Endpoints</h2>
+    </div>
+    <div class="slide-body">
+      <div class="grid-3">
+        <div class="card">
+          <h3>🔐 Auth — Public</h3>
+          <ul>
+            <li><code>POST /api/auth/register</code></li>
+            <li><code>POST /api/auth/login</code></li>
+            <li><code>GET  /api/auth/me</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>👷 Employee</h3>
+          <ul>
+            <li><code>POST /api/attendance/check-in</code></li>
+            <li><code>POST /api/attendance/check-out</code></li>
+            <li><code>GET  /api/employee/dashboard</code></li>
+            <li><code>GET  /api/employee/attendance</code></li>
+            <li><code>GET  /api/employee/attendance/summary</code></li>
+            <li><code>GET  /api/employee/attendance/today</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>👔 Manager</h3>
+          <ul>
+            <li><code>GET  /api/manager/dashboard</code></li>
+            <li><code>GET  /api/manager/attendance</code></li>
+            <li><code>GET  /api/manager/attendance/today-status</code></li>
+            <li><code>POST /api/manager/attendance/{id}/approve-late</code></li>
+            <li><code>GET  /api/attendance/summary</code></li>
+            <li><code>GET  /api/attendance/today-status</code></li>
+            <li><code>GET  /api/manager/export/csv</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1.5rem;">
+        <h3>📌 API Design Principles</h3>
+        <ul>
+          <li>RESTful resource-based URLs with JSON request/response bodies</li>
+          <li>Consistent HTTP status codes: 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict</li>
+          <li>Global exception handler maps domain exceptions to proper HTTP responses</li>
+          <li>Pageable responses for list endpoints (page, size, total params)</li>
+          <li>Date range filtering supported on attendance history &amp; CSV export endpoints</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 9 — DevOps ════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-devops">
+    <div class="slide-header">
+      <div class="num">9</div>
+      <h2>DevOps &amp; Quality Assurance</h2>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2">
+        <div>
+          <h3 style="color:var(--primary); margin-bottom:1rem;">🔄 CI/CD Pipeline (GitHub Actions)</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <h4>Code Push / Pull Request</h4>
+              <p>Developer pushes to GitHub; workflow triggers automatically.</p>
+            </div>
+            <div class="timeline-item">
+              <h4>Backend Build &amp; Test</h4>
+              <p><code>mvn clean package</code> compiles Java, runs unit &amp; integration tests using Testcontainers (real PostgreSQL in Docker).</p>
+            </div>
+            <div class="timeline-item">
+              <h4>Frontend Build &amp; Test</h4>
+              <p><code>npm run build</code> (Vite) compiles TypeScript; <code>npm test</code> (Vitest) runs component unit tests.</p>
+            </div>
+            <div class="timeline-item">
+              <h4>Artifacts Published</h4>
+              <p>Test reports (HTML) published as pipeline artifacts for review.</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 style="color:var(--primary); margin-bottom:1rem;">🐳 Docker Support</h3>
+          <div class="card" style="margin-bottom:1rem;">
+            <h3>Backend Dockerfile</h3>
+            <ul>
+              <li>Multi-stage: <code>build</code> stage (Maven) → <code>runtime</code> stage (JRE 17)</li>
+              <li>Exposes port 8081</li>
+              <li>Environment-variable driven configuration</li>
+            </ul>
+          </div>
+          <div class="card" style="margin-bottom:1rem;">
+            <h3>Docker Compose</h3>
+            <ul>
+              <li>Orchestrates backend + PostgreSQL as a single stack</li>
+              <li>Persistent volume for database data</li>
+              <li>Health checks ensure DB is ready before API starts</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>🧪 Testing Strategy</h3>
+            <ul>
+              <li>Backend: JUnit 5, Testcontainers, Spring Security Test</li>
+              <li>Frontend: Vitest, Testing Library, JSDOM</li>
+              <li>Coverage reporting with @vitest/coverage-v8</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 10 — DEMO ══════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-demo">
+    <div class="slide-header">
+      <div class="num">10</div>
+      <h2>Live Demo</h2>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2">
+        <div>
+          <h3 style="color:var(--primary); margin-bottom:1rem;">👷 Employee Flow</h3>
+          <div class="flow">
+            <div class="flow-step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h4>Register / Login</h4>
+                <p>Create account → receive JWT token → redirected to employee dashboard.</p>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h4>Mark Attendance</h4>
+                <p>Click Check-in at start of day; Check-out at end. Status auto-assigned.</p>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h4>View Dashboard &amp; History</h4>
+                <p>See monthly summary, attendance percentage, and 7-day trend.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 style="color:#6d28d9; margin-bottom:1rem;">👔 Manager Flow</h3>
+          <div class="flow">
+            <div class="flow-step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h4>Manager Dashboard</h4>
+                <p>Real-time team statistics: present/absent/late counts, weekly trend, department breakdown.</p>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h4>Team Attendance View</h4>
+                <p>Browse all employees' attendance by date; filter by status.</p>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h4>Approve Late &amp; Export</h4>
+                <p>Approve late arrivals with one click; export CSV for payroll.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1.5rem; background:#fefce8; border-color:#fde68a;">
+        <h3 style="color:#92400e;">🖥️ Run Locally</h3>
+        <ul>
+          <li style="list-style:none; font-size:.9rem;"><strong>Backend:</strong> <code>cd backend/attendance-system &amp;&amp; mvn spring-boot:run</code> (requires PostgreSQL on localhost:5432)</li>
+          <li style="list-style:none; font-size:.9rem; margin-top:.4rem;"><strong>Frontend:</strong> <code>cd frontend/attendance-system-frontend &amp;&amp; npm install &amp;&amp; npm run dev</code></li>
+          <li style="list-style:none; font-size:.9rem; margin-top:.4rem;"><strong>Docker:</strong> <code>docker-compose up</code> (starts everything automatically)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FINAL / Q&A ════════════════════════════════════════════════════ -->
+  <div class="final-slide" id="slide-qa">
+    <h2>🙏 Thank You!</h2>
+    <p>
+      We are proud to present the <strong>Attendance Management System</strong> —
+      a secure, scalable, and production-ready solution built with modern
+      Java &amp; React technologies.
+    </p>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <div class="name">Srinath Udhayakumar</div>
+        <div class="role">Backend · JWT Security</div>
+      </div>
+      <div class="contact-item">
+        <div class="name">Backend Developer 2</div>
+        <div class="role">Backend · API &amp; Database</div>
+      </div>
+      <div class="contact-item">
+        <div class="name">Frontend Developer 1</div>
+        <div class="role">Frontend · Employee Module</div>
+      </div>
+      <div class="contact-item">
+        <div class="name">Frontend Developer 2</div>
+        <div class="role">Frontend · Manager Module</div>
+      </div>
+    </div>
+    <p style="margin-top:2rem; font-size:1.3rem; font-weight:700;">
+      ❓ Questions &amp; Answers
+    </p>
+  </div>
+
+</div><!-- /presentation -->
+
+</body>
+</html>
